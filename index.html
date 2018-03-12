@@ -1,7 +1,28 @@
-<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Visualization</title>
+    <link rel="stylesheet" href="styles/scatter.css" charset="utf-8">
+  </head>
+  <body>
+    <div id="scatter"></div>
+    <li><input type="file" id="file_input" class="fa"></li>
+    <!-- <input type="button" name="xAxis" value="xAxis"> -->
+    <input type="button" id="draw_mode" value="draw">
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script src="js/scatter.js" charset="utf-8"></script>
+    <script src="https://d3js.org/d3-color.v1.min.js"></script>
+	<script src="https://d3js.org/d3-interpolate.v1.min.js"></script>
+	<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+  </body>
+</html>
+
+
+<!-- <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Point Cloud Viewer</title>
+		<title>Lidar Annotator</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css" rel="stylesheet">
@@ -11,28 +32,48 @@
 	<body>
 		<nav class="tools">
 			<ul id="tools">
+				<li><input type="file" id="file_input" class="fa"></li>
+				<li><a href="#" id="draw-box"><i class="fas fa-cube"></i></a></li>
 				<li><a href="#" id="save"><i class="fa fa-floppy-o"></i></a></li>
                                 <li><a href="#" id="export"><i class="fa fa-picture-o"></i></a></li>
 				<li><a href="#" id="move"><i class="fa fa-arrows"></i></a></li>
 				<li><a href="#" class="selected" id="label"><i class="fa fa-pencil"></i></a></li>
+
 			</ul>
+			<button onclick="toggle_reg_attr_panel()" class="leftsidebar_accordion" id="reg_attr_panel_button">Region Attributes</button>
+
+
 		</nav>
 		<nav>
 			<ul id="navigation">
 
 			</ul>
 		</nav>
-		<div id="container"></div>
-		<div id="info">Point Cloud Viewer</div>
+		<div id="container"></div> -->
+		<!-- region and file attributes input panel -->
+	    <!-- <div id="attributes_panel">
+	    	<div id="attributes_panel_toolbar">
+	        	<div onclick="toggle_attributes_input_panel()" class="attributes_panel_button">&times;</div>
+	    	</div>
+	      	<table id="attributes_panel_table">
+	      		<td>asdf</td>
+	      	</table>
+	    </div>
+ -->
 
-    <script src="js/three.min.js"></script>
-    <script src="js/OrbitControls.js"></script>
+		<!-- <div id="info">Point Cloud Viewer</div> -->
+
+    <!-- <script src="js/three.min.js"></script> -->
+    <!-- <script src="js/DragControls.js"></script> -->
+    <!-- <script src="js/OrbitControls.js"></script>
 	<script src="js/Detector.js"></script>
-	<script src="js/libs/stats.min.js"></script>
-    <script src="js/output.js?nocache"></script>
-	<script src="js/FileSaver.min.js"></script>
-	<script type="x-shader/x-vertex" id="vertexshader">
-		attribute float size;
+	<script src="js/libs/stats.min.js"></script> -->
+    <!-- <script src="js/output.js?nocache"></script> -->
+	<!-- <script src="js/FileSaver.min.js"></script>
+	<script src="js/attributes.js"></script>
+	<script src="js/TrackballControls.js"></script>
+	<script type="x-shader/x-vertex" id="vertexshader"> -->
+		<!-- attribute float size;
 		attribute vec3 customColor;
 		varying vec3 vColor;
 		void main() {
@@ -41,9 +82,9 @@
 			gl_PointSize = size * ( 300.0 / -mvPosition.z );
 			gl_Position = projectionMatrix * mvPosition;
 		}
-	</script>
+	</script> -->
 
-	<script type="x-shader/x-fragment" id="fragmentshader">
+	<!-- <script type="x-shader/x-fragment" id="fragmentshader">
 		uniform vec3 color;
 		uniform sampler2D texture;
 		varying vec3 vColor;
@@ -55,4 +96,4 @@
 	</script>
 	<script src="js/main.js?nocache"></script>
 	</body>
-</html>
+</html> -->
