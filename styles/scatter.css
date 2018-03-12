@@ -49,3 +49,10 @@ rect {
   top: 100%;
   left: 0;
 }
+
+.boundingBox, .newBox {
+  fill: rgb(0,0,255);
+  /*stroke-width:3;
+  stroke:rgb(0,0,0);*/
+  opacity: .5;
+}

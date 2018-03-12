@@ -12,8 +12,8 @@ var xScale, yScale;
 init();
 
 var margin = { top: 50, right: 300, bottom: 50, left: 50 },
-    outerWidth = 1050,
-    outerHeight = 500,
+    outerWidth = 1200,
+    outerHeight = 600,
     width = outerWidth - margin.left - margin.right,
     height = outerHeight - margin.top - margin.bottom;
 
@@ -57,7 +57,7 @@ function toggleZoom() {
       drawMode();
   }
   isZoomOff = !isZoomOff;
-  console.log(isZoomOff);
+  // console.log(isZoomOff);
 }
 
 function render() {
@@ -217,13 +217,6 @@ function zoom() {
   //   .attr("transform", "translate(" + (x(newBox.abs0.x) - newBox.topLeft.x) + "," + (y(newBox.abs0.y) - newBox.topLeft.y) + ")");
   for (var i = 0; i < boundingBoxes.length; i++) {
     var boundingBox = boundingBoxes[i];
-    // if (boundingBox.isNew) {
-    //   invert(boundingBox);
-    // }
-    if (Math.abs(x(boundingBox.abs0.x) - x(boundingBox.abs1.x)) == 0) {
-      console.log("what!");
-      console.log(boundingBox);
-    }
     svg.selectAll("#box-" + i)
     .attr("x", x(boundingBox.abs0.x))
     .attr("y", y(boundingBox.abs0.y))
@@ -250,7 +243,6 @@ function invert(box) {
       x: x.invert(box.p1.x),
       y: y.invert(box.p1.y)
     };
-  box.isNew = false;
   // box.abs1 = {
   //       x: x.invert(box.p1.x - box.p0.x) + box.abs0.x - x.invert(0),
   //       y: y.invert(box.p1.y - box.p0.y) + box.abs0.y - y.invert(0)
@@ -263,6 +255,7 @@ function transform(d) {
 function init() {
   document.getElementById( 'file_input' ).addEventListener( 'change', upload_file, false );
   document.getElementById( 'draw_mode' ).addEventListener( 'click', toggleZoom, false );
+  document.getElementById( 'export' ).addEventListener( 'click', exportBoxes, false );
 }
 
 function upload_file() {
@@ -284,11 +277,10 @@ function load_text_file(text_file) {
 
 function readData(e) {
   var rawLog = this.result;
-  // console.log(rawLog);
   var floatarr = new Float32Array(rawLog)
   data = [];
-  var stride = 4;
-  for (var i = 0; i < 32 / 4; i += 4 * stride) {
+  var stride = 16;
+  for (var i = 0; i < floatarr.length; i += 4 * stride) {
     var d = new Object();
     d.x = floatarr[i];
     d.y = floatarr[i + 1];
@@ -296,11 +288,18 @@ function readData(e) {
     data.push(d);
   }
   console.log(data[0]);
-  // console.log(data);
-  // console.log(data.length);
   render();
-  // show();
-  // animate();
+}
+
+function exportBoxes() {
+  var outputBoxes = []
+  for (var i = 0; i < boundingBoxes.length; i++) {
+    outputBoxes.push(new OutputSquare(boundingBoxes[i]));
+  }
+  var output = {"bounding boxes": outputBoxes};
+  var stringifiedOutput = JSON.stringify(output);
+  var file = new File([stringifiedOutput], "test.json", {type: "/json;charset=utf-8"});
+  saveAs(file);
 }
 
 
@@ -320,6 +319,20 @@ function getWidth(p0, p1) {
   return Math.abs(p0.x - p1.x);
 }
 
+function getCenter(p0, p1) {
+  var center = {
+    "x": (p0.x + p1.x) / 2,
+    "y": (p0.y + p1.y) / 2
+  };
+  return center;
+}
+
+function OutputSquare(box) {
+  this.center = getCenter(box.abs0, box.abs1);
+  this.height = getHeight(box.abs0, box.abs1);
+  this.width = getWidth(box.abs0, box.abs1);
+}
+
 function Square() {
   // var corner1, corner2, corner3, corner4;
   this.p0 = {x: 0 ,y: 0};
@@ -330,26 +343,11 @@ function Square() {
   this.isDrawing = false;
   this.isDragging = false;
   this.container = svg;
-  this.isNew = true;
   }
 
   // set anchor point on mousedown
   function setAnchor(box) {
     // console.log("mousedown");
-    // if (isDrawing) return;
-    // isDrawing = true;
-    // var cursor = d3.mouse(svg.node());
-    // p = cursor;
-    // p0 = {
-    //   x: x.invert(cursor[0]),
-    //   y: y.invert(cursor[1])
-    // };
-    // console.log(cursor[1]);
-    // startDraw.on("mousedown", null);
-    // svg.select(".objects").append('rect')
-    //   .attr("id", "newBox")
-    //   .attr("style", "fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)");
-    console.log("mousedown");
     if (box.isDrawing) return;
     box.isDrawing = true;
     var cursor = d3.mouse(svg.node());
@@ -357,54 +355,22 @@ function Square() {
       x: cursor[0],
       y: cursor[1]
     };
-
-    // box.abs0 = {
-    //   x: x.invert(cursor[0]),
-    //   y: y.invert(cursor[1])
-    // };
     box.abs0 = {
       x: xScale.invert(cursor[0]),
       y: yScale.invert(cursor[1])
     };
     // console.log("x: ", xScale.invert(cursor[0]));
     // console.log("y: ", yScale.invert(cursor[1]));
-    // console.log(cursor[1]);
     // console.log("startDraw: ", box.startDraw);
     startDraw.on("mousedown", null);
     svg.select(".objects").append('rect')
       .attr("class", "newBox")
-      .attr("style", "fill:rgb(0,0,255);stroke-width:3;stroke:rgb(0,0,0)");
+      
   }
 
   // draws box on mousemove
   function drawBox(box) {
     // console.log("mousemove");
-    // // console.log(isDrawing);
-    // if (isDrawing) {
-    //   var cursor = d3.mouse(svg.node());
-    //   p1 = {
-    //     x: x.invert(cursor[0] - p[0]) - x.invert(0) + p0.x,
-    //     y: y.invert(cursor[1] - p[1]) - y.invert(0) + p0.y
-    //   };
-    //   // console.log(y.invert(cursor[1] - p[1]) - y.invert(0) + p0.y);
-    //   // console.log(x.invert(cursor[0] - p[0]) - x.invert(0) + p0.x);
-    //   center = getCenter(p0, p1);
-    //   center.x = x.invert(center.x - p[0]) - x.invert(0) + p0.x;
-    //   center.y = y.invert(center.y - p[1]) - y.invert(0) + p0.y;
-    //   console.log("p0: ", p0);
-    //   console.log("p1: ", p1);
-    //   console.log("center: ", center);      
-    //   console.log("width: ", getWidth(p0, p1));
-    //   console.log("height: ", getHeight(p0, p1));
-    //   console.log(x(center.x));
-    //   svg.select('.objects').select("#newBox")
-    //     .attr("x", x(center.x))
-    //     .attr("y", y(center.y))
-    //     .attr("width", x(getWidth(p0, p1)))
-    //     .attr("height", y(getHeight(p0, p1)));
-    //     // .attr("transform", function () { return "translate(" + x(center.x) + "," + y(center.y) + ")"; });
-    // }
-    console.log("mousemove");
     if (box.isDrawing) {
       var cursor = d3.mouse(svg.node());
       box.p1 = {
@@ -419,7 +385,6 @@ function Square() {
         x: xScale.invert(cursor[0]),
         y: yScale.invert(cursor[1])
       };
-      // console.log(abs1);
       box.topLeft = getTopLeft(box.p0, box.p1);
       // console.log("x: ", xScale.invert(cursor[0]));
       // console.log("y: ", yScale.invert(cursor[1]));
@@ -440,17 +405,18 @@ function Square() {
 
   // sets box corners on mouseup
   function setBox(box) {
-    console.log("abs: ", box.abs0, box.abs1);
+    // console.log("abs: ", box.abs0, box.abs1);
     box.isDrawing = false;
     box.isDragging = true;
+    // re-order points so that _0 is always top left and _1 always bottom right
     var temp0 = box.abs0;
     var temp1 = box.abs1;
-    box.abs0 = {x: Math.min(box.abs0.x, box.abs1.x), y: Math.max(box.abs0.y, box.abs1.y)};
-    box.abs1 = {x: Math.max(box.abs0.x, box.abs1.x), y: Math.min(box.abs0.y, box.abs1.y)};
+    box.abs0 = {x: Math.min(temp0.x, temp1.x), y: Math.max(temp0.y, temp1.y)};
+    box.abs1 = {x: Math.max(temp0.x, temp1.x), y: Math.min(temp0.y, temp1.y)};
     temp0 = box.p0;
     temp1 = box.p1;
-    box.p0 = {x: Math.min(box.p0.x, box.p1.x), y: Math.max(box.p0.y, box.p1.y)};
-    box.p1 = {x: Math.max(box.p0.x, box.p1.x), y: Math.min(box.p0.y, box.p1.y)};
+    box.p0 = {x: Math.min(temp0.x, temp1.x), y: Math.max(temp0.y, temp1.y)};
+    box.p1 = {x: Math.max(temp0.x, temp1.x), y: Math.min(temp0.y, temp1.y)};
     // var newBox = box.container.select('#newBox');
     startDraw.on("mousemove", null).on("mouseup", null);
     svg.select('.objects').select(".newBox")
