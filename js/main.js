@@ -645,9 +645,9 @@ function render() {
     renderer.render( scene, camera );
 
 
-    // if (move2D) {
-    //     grid.rotation.y = camera.rotation.z;
-    // }
+    if (move2D) {
+        grid.rotation.y = camera.rotation.z;
+    }
 }
 
 function show() {
