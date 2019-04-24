@@ -41,6 +41,7 @@ function get3DCoord() {
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
     mouse.z = 0.5;
     mouse.unproject( camera );
+
     var dir = mouse.sub( camera.position ).normalize();
     var distance = - camera.position.y / dir.y;
     var pos = camera.position.clone().add( dir.multiplyScalar( distance ) );
@@ -121,6 +122,7 @@ function containsPoint(box, v) {
 
 
 function intersectWithCorner() {
+    var boundingBoxes = app.cur_frame.bounding_boxes;
     if (boundingBoxes.length == 0) {
         return null;
     }
@@ -215,17 +217,21 @@ function upload_file() {
 var fileLoaded = true;
 var currFile = "";
 function upload_files() {
-    var x = document.getElementById("file_input");
-    if (x.files.length > 0) {
-        for (var i = 0; i < x.files.length; i++) {
-            var filename = x.files[i].name;
-            var file = x.files[i];
-            evaluation.add_filename(filename);
+    $.ajax({
+        url: '/loadFrameNames',
+        type: 'POST',
+        contentType: 'application/json;charset=UTF-8',
+        success: function(response) {
+            app.fnames = response.split(',');
+            get_pointcloud_data(app.fnames[0]);
+        },
+        error: function(error) {
+            console.log(error);
         }
-        var text_reader = new FileReader();
-        load_data_helper(0, x.files);
-    }
+    });
 }
+
+
 
 function load_data_helper(index, files) {
     if (index < evaluation.filenames.length) {
@@ -251,38 +257,6 @@ function load_text_file(index, text_file, files) {
     }
   }
 }
-
-function readData(text_reader) {
-    var rawLog = text_reader.result;
-    var floatarr = new Float32Array(rawLog)
-    evaluation.add_data(floatarr);
-    if (evaluation.num_frames() == 1) { 
-        reset();
-        data = evaluation.get_data();
-        // getMaskRCNNLabels(evaluation.get_filename());
-        show();
-        animate();
-        // $.ajax({
-        //     url: '/initTracker',
-        //     data: JSON.stringify({pointcloud: pointcloud.geometry.vertices}),
-        //     type: 'POST',
-        //     contentType: 'application/json;charset=UTF-8',
-        //     success: function(response) {
-        //         console.log(response);
-        //     },
-        //     error: function(error) {
-        //         console.log(error);
-        //     }
-        // });
-        // evaluator.resume_3D_time();
-        // evaluator.resume_time();
-        $("#record").show();
-        isRecording = false;
-        $("#file_input").hide();
-        select2DMode();
-    }
-}
-
 
 
 // https://stackoverflow.com/a/15327425/4855984
